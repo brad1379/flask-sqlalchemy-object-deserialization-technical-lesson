@@ -24,11 +24,22 @@ class DogSchema(Schema):
     breed = fields.Str()
     tail_wagging = fields.Boolean()
 
+    # Take a dictionary of deserialized data and return a model
+    @post_load
+    def make_dog(self, data, **kwargs):
+        return Dog(**data)
+
 # deserialize
 
 dog_schema = DogSchema()
 dog_json = '{"name": "Snuggles", "breed": "Beagle", "tail_wagging": true}'
 dog = dog_schema.loads(dog_json)
-print(type(dog))             # => <class 'dict'>
-print(isinstance(dog, Dog))  # => False
-pprint(dog)                  # => {'breed': 'Beagle', 'name': 'Snuggles', 'tail_wagging': True}
+print(type(dog))             # => <class '__main__.Dog'>
+print(isinstance(dog, Dog))  # => True
+pprint(dog)                  # => <__main__.Dog object at 0x7efafa51c460>
+
+pprint(dog_schema.dumps(dog)) # Output -> '{"name": "Snuggles", "breed": "Beagle", "tail_wagging": true}'
+dog.scold()
+pprint(dog_schema.dumps(dog)) # Output -> '{"name": "Snuggles", "breed": "Beagle", "tail_wagging": false}'
+dog.give_treat()
+pprint(dog_schema.dumps(dog)) # Output -> '{"name": "Snuggles", "breed": "Beagle", "tail_wagging": true}'
